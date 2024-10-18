@@ -3,18 +3,25 @@ import db from "../../connection";
 import {promisify} from 'util';
 const query = promisify(db.query).bind(db)
 import {format, isAfter, isBefore} from 'date-fns'
+import { IStaffs } from "./types";
+
+interface IFindStaff extends IStaffs{
+    start_time: string, 
+    end_time: string,
+    name: string
+}
 
 export const auth = async(req: Request, res: Response) => {
     try {
         const {username, password} = req.body 
 
-        const findStaff: any = await query({
+        const findStaff = await query({
             sql: `SELECT * FROM staffs 
             JOIN schedules ON staffs.schedules_id = schedules.id
             JOIN branchs ON staffs.branchs_id = branchs.id
             WHERE username = ? AND password = ?`,
             values: [username, password]
-        })
+        }) as IFindStaff[]
 
         const checkStaffSchedule = isAfter(format(new Date(), 'yyyy-MM-dd kk:mm:ss'), `${format(new Date(), 'yyyy-MM-dd')} ${findStaff[0].start_time}`) 
         && isBefore(format(new Date(), 'yyyy-MM-dd kk:mm:ss'), `${format(new Date(), 'yyyy-MM-dd')} ${findStaff[0].end_time}`)
