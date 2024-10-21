@@ -64,3 +64,22 @@ export const createMember = async(req: Request, res: Response) => {
         })
     }
 }
+
+export const findMember = async(req: Request, res: Response) => {
+    try {
+        const { data } = req.query 
+
+        const members = await query({
+            sql: 'SELECT * FROM members WHERE id LIKE ? OR email LIKE ? OR phone_number LIKE ?',
+            values: [`%${data}%`, `%${data}%`, `%${data}%`]
+        })
+
+        res.status(200).json({
+            error: false, 
+            message: 'Get Member by Search Success', 
+            data: members
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}

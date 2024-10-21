@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMember = exports.findMembers = void 0;
+exports.findMember = exports.createMember = exports.findMembers = void 0;
 const connection_1 = __importDefault(require("../../connection"));
 const util_1 = require("util");
 const query = (0, util_1.promisify)(connection_1.default.query).bind(connection_1.default);
@@ -72,3 +72,21 @@ const createMember = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.createMember = createMember;
+const findMember = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { data } = req.query;
+        const members = yield query({
+            sql: 'SELECT * FROM members WHERE id LIKE ? OR email LIKE ? OR phone_number LIKE ?',
+            values: [`%${data}%`, `%${data}%`, `%${data}%`]
+        });
+        res.status(200).json({
+            error: false,
+            message: 'Get Member by Search Success',
+            data: members
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.findMember = findMember;
